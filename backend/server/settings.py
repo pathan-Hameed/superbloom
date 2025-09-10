@@ -108,10 +108,10 @@ WSGI_APPLICATION = "server.wsgi.application"
 # pip install dj-database-url psycopg2-binary
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",  # fallback for local dev
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",  # fallback for local
         conn_max_age=600,
-        ssl_require=True
+        ssl_require=True  # Required for Railway Postgres
     )
 }
 
