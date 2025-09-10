@@ -1,7 +1,9 @@
-Django==5.2.6
+Django==5.0.6
 whitenoise==6.7.0
 django-cors-headers==4.7.0
 Pillow==11.3.0
 gspread==6.2.1
 google-auth==2.40.3
 gunicorn==23.0.0
+dj-database-url==2.2.0
+psycopg2-binary==2.9.9
