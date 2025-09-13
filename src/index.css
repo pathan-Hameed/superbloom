@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+:root {
+  --dark: #0A0A0A;
+  --dark-800: #111111;
+  --textColor: #E2E2E2;
+}
+
+body {
+  background-color: var(--dark);
+  color: var(--textColor);
+}
+
+.glassmorphism {
+  opacity: 70%;
+  backdrop-filter: blur;
+  border: 2px #2f2f2f;
+}
+
+.gradient-text {
+  background: linear-gradient(to right, #a855f7, #f472b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
