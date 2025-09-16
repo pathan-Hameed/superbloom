@@ -1,6 +1,54 @@
-import React from 'react';
+// Import useState for managing form state and the supabase client
+import React, { useState } from 'react';
+import { supabase } from '../supabaseClient'; // Make sure this path is correct
 
 const ContactPage = () => {
+  // State to track if the form is currently submitting
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  // State to hold any success or error messages
+  const [statusMessage, setStatusMessage] = useState('');
+
+  // The function that runs when the form is submitted
+  async function handleSubmit(event) {
+    // Prevent the default browser refresh
+    event.preventDefault();
+    if (isSubmitting) return; // Don't submit if already submitting
+
+    setIsSubmitting(true);
+    setStatusMessage(''); // Clear previous messages
+
+    // Get all form data
+    const formData = new FormData(event.currentTarget);
+    const leadData = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      service: formData.get('service'),
+      message: formData.get('message'),
+    };
+
+    try {
+      // Use the supabase client to insert the data into the 'leads' table
+      const { error } = await supabase.from('leads').insert([leadData]);
+
+      if (error) {
+        // If Supabase returns an error, throw it to the catch block
+        throw error;
+      }
+
+      // If successful, show a success message and reset the form
+      setStatusMessage('Thanks for your message! We will get back to you soon.');
+      event.target.reset();
+
+    } catch (error) {
+      // If any error occurs, log it and show an error message
+      console.error('Error submitting form:', error.message);
+      setStatusMessage('Sorry, there was an error sending your message. Please try again.');
+    } finally {
+      // Whether it succeeds or fails, stop the submitting state
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <main className="pt-24 bg-black text-white">
       <section className="py-20 text-center">
@@ -47,7 +95,8 @@ const ContactPage = () => {
             {/* Form Column */}
             <div className="lg:col-span-2">
               <div className="bg-[#111] p-8 rounded-2xl border border-gray-800">
-                <form>
+                {/* Add the onSubmit handler to the form */}
+                <form onSubmit={handleSubmit}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-2">
@@ -105,11 +154,16 @@ const ContactPage = () => {
                     />
                   </div>
                   <div className="mt-8 text-right">
+                    {/* Display the status message if it exists */}
+                    {statusMessage && <p className="text-sm text-gray-400 text-left mb-4">{statusMessage}</p>}
                     <button
                       type="submit"
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 px-8 rounded-full text-lg hover:opacity-90 transition-opacity duration-300"
+                      // Disable the button while submitting
+                      disabled={isSubmitting}
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 px-8 rounded-full text-lg hover:opacity-90 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Send Message
+                      {/* Change button text while submitting */}
+                      {isSubmitting ? 'Sending...' : 'Send Message'}
                     </button>
                   </div>
                 </form>
