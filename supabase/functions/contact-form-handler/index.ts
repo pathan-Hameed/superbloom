@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
     // Create a Supabase client with the service_role key
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('service_key_supabase') ?? ''
     )
 
     // Insert the new lead into the database
