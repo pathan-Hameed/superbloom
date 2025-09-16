@@ -8,46 +8,46 @@ const ContactPage = () => {
   // State to hold any success or error messages
   const [statusMessage, setStatusMessage] = useState('');
 
-  // The function that runs when the form is submitted
   async function handleSubmit(event) {
-    // Prevent the default browser refresh
-    event.preventDefault();
-    if (isSubmitting) return; // Don't submit if already submitting
+  event.preventDefault();
+  if (isSubmitting) return;
 
-    setIsSubmitting(true);
-    setStatusMessage(''); // Clear previous messages
+  setIsSubmitting(true);
+  setStatusMessage('');
 
-    // Get all form data
-    const formData = new FormData(event.currentTarget);
-    const leadData = {
-      name: formData.get('name'),
-      email: formData.get('email'),
-      service: formData.get('service'),
-      message: formData.get('message'),
-    };
+  // Get the Function URL from the environment variables
+  const functionUrl = import.meta.env.VITE_CONTACT_FORM_FUNCTION_URL;
 
-    try {
-      // Use the supabase client to insert the data into the 'leads' table
-      const { error } = await supabase.from('leads').insert([leadData]);
+  const formData = new FormData(event.currentTarget);
+  const leadData = {
+    name: formData.get('name'),
+    email: formData.get('email'),
+    service: formData.get('service'),
+    message: formData.get('message'),
+  };
 
-      if (error) {
-        // If Supabase returns an error, throw it to the catch block
-        throw error;
-      }
+  try {
+    // Call the Edge Function instead of using the Supabase client directly
+    const response = await fetch(functionUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(leadData),
+    });
 
-      // If successful, show a success message and reset the form
-      setStatusMessage('Thanks for your message! We will get back to you soon.');
-      event.target.reset();
-
-    } catch (error) {
-      // If any error occurs, log it and show an error message
-      console.error('Error submitting form:', error.message);
-      setStatusMessage('Sorry, there was an error sending your message. Please try again.');
-    } finally {
-      // Whether it succeeds or fails, stop the submitting state
-      setIsSubmitting(false);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
+
+    setStatusMessage('Thanks for your message! We will get back to you soon.');
+    event.target.reset();
+
+  } catch (error) {
+    console.error('Error submitting form:', error.message);
+    setStatusMessage('Sorry, there was an error sending your message. Please try again.');
+  } finally {
+    setIsSubmitting(false);
   }
+}
 
   return (
     <main className="pt-24 bg-black text-white">
